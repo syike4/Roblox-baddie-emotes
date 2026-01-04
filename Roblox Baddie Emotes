@@ -16,13 +16,13 @@ screenGui.Name = "BaddiesToggles"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
--- MAIN TOGGLE BUTTON (ABOVE everything) - MOVED HIGHER ON MOBILE
+-- MAIN TOGGLE BUTTON (MOVED HIGHER ON MOBILE - TOP TOP RIGHT)
 local mainToggleButton = Instance.new("Frame")
 mainToggleButton.Name = "MainToggleButton"
 
 if isMobile then
     mainToggleButton.Size = UDim2.new(0, 32, 0, 32)
-    mainToggleButton.Position = UDim2.new(1, -42, 0, -10)  -- MOVED UP MORE (was 5, now -10)
+    mainToggleButton.Position = UDim2.new(1, -42, 0, -10)  -- MOVED UP MORE (negative Y for top top right)
 else
     mainToggleButton.Size = UDim2.new(0, 35, 0, 35)
     mainToggleButton.Position = UDim2.new(1, -45, 0, -40)
@@ -50,12 +50,12 @@ mainToggleStroke.Thickness = 1
 mainToggleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 mainToggleStroke.Parent = mainToggleButton
 
--- BLACK CONTAINER FRAME with smooth bezels
+-- BLACK CONTAINER FRAME with smooth bezels (adjusted for mobile)
 local containerFrame = Instance.new("Frame")
 containerFrame.Name = "AnimationContainer"
 if isMobile then
     containerFrame.Size = UDim2.new(0, 220, 0, 300)
-    containerFrame.Position = UDim2.new(1, -240, 0, 50)
+    containerFrame.Position = UDim2.new(1, -240, 0, 30)  -- ADJUSTED TO ALIGN WITH NEW BUTTON POSITION
 else
     containerFrame.Size = UDim2.new(0, 240, 0, 350)
     containerFrame.Position = UDim2.new(1, -260, 0, 10)
