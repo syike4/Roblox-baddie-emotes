@@ -7,7 +7,7 @@ local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Basic device detection (touch = likely mobile) [web:1][web:7][web:21]
+-- Basic device detection (touch = likely mobile)
 local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled
 
 -- Create ScreenGui
@@ -21,11 +21,11 @@ local mainToggleButton = Instance.new("Frame")
 mainToggleButton.Name = "MainToggleButton"
 
 if isMobile then
-    -- Slightly bigger and a bit lower on mobile
-    mainToggleButton.Size = UDim2.new(0, 45, 0, 45)
-    mainToggleButton.Position = UDim2.new(1, -55, 0, 15)
+    -- Thinner & a bit higher on mobile
+    mainToggleButton.Size = UDim2.new(0, 32, 0, 32)
+    mainToggleButton.Position = UDim2.new(1, -42, 0, 5)
 else
-    -- Your original PC layout
+    -- Original PC layout
     mainToggleButton.Size = UDim2.new(0, 35, 0, 35)
     mainToggleButton.Position = UDim2.new(1, -45, 0, -40)
 end
@@ -287,7 +287,6 @@ local function restorePreviousAnimations()
         local targetTextColor = Color3.fromRGB(76, 209, 55)
         TweenService:Create(toggle.label, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextColor3 = targetTextColor}):Play()
         toggle.dotGradient.Color = onSequence
-        -- re-run animation
         local character = player.Character
         if character then
             local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -365,10 +364,11 @@ for i, toggle in ipairs(toggles) do
     toggleFrame.Name = toggle.name .. "Frame"
 
     if isMobile then
-        toggleFrame.Size = UDim2.new(0, 260, 0, 44)
-        toggleFrame.Position = UDim2.new(1, -270, 0, 8 + (i - 1) * 48)
+        -- Thinner & higher list on mobile
+        toggleFrame.Size = UDim2.new(0, 200, 0, 34)
+        toggleFrame.Position = UDim2.new(1, -210, 0, -10 + (i - 1) * 38)
     else
-        toggleFrame.Size = UDim2.new(0, 220, 0, 40)  -- original PC
+        toggleFrame.Size = UDim2.new(0, 220, 0, 40)
         toggleFrame.Position = UDim2.new(1, -230, 0, 8 + (i - 1) * 44)
     end
 
@@ -404,7 +404,7 @@ for i, toggle in ipairs(toggles) do
     toggleLabel.BackgroundTransparency = 1
     toggleLabel.Text = toggle.name
     toggleLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    toggleLabel.TextSize = isMobile and 15 or 13
+    toggleLabel.TextSize = isMobile and 13 or 13
     toggleLabel.Font = Enum.Font.GothamSemibold
     toggleLabel.TextXAlignment = Enum.TextXAlignment.Left
     toggleLabel.TextYAlignment = Enum.TextYAlignment.Center
@@ -460,14 +460,12 @@ for i, toggle in ipairs(toggles) do
         toggleAnimation(toggle)
     end
 
-    -- Unified click / touch detection
     toggleFrame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             handleToggle()
         end
     end)
 
-    -- Hover effects (PC visual, harmless on mobile)
     toggleFrame.MouseEnter:Connect(function()
         local hoverTextColor = toggle.isToggled and Color3.fromRGB(120, 255, 100) or Color3.fromRGB(230, 230, 230)
         TweenService:Create(toggleLabel, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {TextColor3 = hoverTextColor}):Play()
