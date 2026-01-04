@@ -16,13 +16,13 @@ screenGui.Name = "BaddiesToggles"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
--- MAIN TOGGLE BUTTON (ABOVE everything)
+-- MAIN TOGGLE BUTTON (ABOVE everything) - MOVED HIGHER ON MOBILE
 local mainToggleButton = Instance.new("Frame")
 mainToggleButton.Name = "MainToggleButton"
 
 if isMobile then
     mainToggleButton.Size = UDim2.new(0, 32, 0, 32)
-    mainToggleButton.Position = UDim2.new(1, -42, 0, 5)
+    mainToggleButton.Position = UDim2.new(1, -42, 0, -10)  -- MOVED UP MORE (was 5, now -10)
 else
     mainToggleButton.Size = UDim2.new(0, 35, 0, 35)
     mainToggleButton.Position = UDim2.new(1, -45, 0, -40)
