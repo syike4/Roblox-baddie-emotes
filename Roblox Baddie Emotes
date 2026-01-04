@@ -7,7 +7,7 @@ local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Basic device detection (touch = likely mobile)
+-- Basic device detection
 local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled
 
 -- Create ScreenGui
@@ -21,11 +21,9 @@ local mainToggleButton = Instance.new("Frame")
 mainToggleButton.Name = "MainToggleButton"
 
 if isMobile then
-    -- Thinner & a bit higher on mobile
     mainToggleButton.Size = UDim2.new(0, 32, 0, 32)
     mainToggleButton.Position = UDim2.new(1, -42, 0, 5)
 else
-    -- Original PC layout
     mainToggleButton.Size = UDim2.new(0, 35, 0, 35)
     mainToggleButton.Position = UDim2.new(1, -45, 0, -40)
 end
@@ -70,236 +68,47 @@ local onColor = Color3.fromRGB(76, 209, 55)
 local offSequence = ColorSequence.new(black, offColor)
 local onSequence = ColorSequence.new(black, onColor)
 
--- Toggles data (animation IDs as strings)
+-- Toggles data
 local toggles = {
-    {
-        name = "Baddies Split",
-        animationId = "85195857579576",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "baddie shake in a circle",
-        animationId = "125243378417931",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Needy Dance",
-        animationId = "81991457430301",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Slow Shake",
-        animationId = "128156281604243",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Stretch",
-        animationId = "119377401608190",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Bend Over",
-        animationId = "122195322227561",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil,
-        looped = false  -- Don't loop this animation
-    },
-    {
-        name = "Hula Hoop",
-        animationId = "99067166854642",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Windy Shake",
-        animationId = "119055944394046",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Cute sitting pose",
-        animationId = "99430742775879",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Tail Wag",
-        animationId = "72379586208471",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Lay (WAG)",
-        animationId = "103786264517827",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "On Knees",
-        animationId = "77288841082275",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Stretch bend",
-        animationId = "96330627404293",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Split While Laying",
-        animationId = "100179668392253",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Cute Sitting Down",
-        animationId = "74979648047173",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Hip Sway",
-        animationId = "121983227909457",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Cute Jiggly Needy Shake",
-        animationId = "87387281711244",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "spicy needy diva bouncy shake",
-        animationId = "139957058984926",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Rabbit Shake",
-        animationId = "117394346715743",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    },
-    {
-        name = "Kawaii Bounce",
-        animationId = "127118661424463",
-        isToggled = false,
-        animTrack = nil,
-        label = nil,
-        dot = nil,
-        dotGradient = nil
-    }
+    {name = "Baddies Split", animationId = "85195857579576", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "baddie shake in a circle", animationId = "125243378417931", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Needy Dance", animationId = "81991457430301", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Slow Shake", animationId = "128156281604243", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Stretch", animationId = "119377401608190", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Bend Over", animationId = "122195322227561", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil, looped = false},
+    {name = "Hula Hoop", animationId = "99067166854642", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Windy Shake", animationId = "119055944394046", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Cute sitting pose", animationId = "99430742775879", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Tail Wag", animationId = "72379586208471", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Lay (WAG)", animationId = "103786264517827", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "On Knees", animationId = "77288841082275", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Stretch bend", animationId = "96330627404293", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Split While Laying", animationId = "100179668392253", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Cute Sitting Down", animationId = "74979648047173", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Hip Sway", animationId = "121983227909457", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Cute Jiggly Needy Shake", animationId = "87387281711244", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "spicy needy diva bouncy shake", animationId = "139957058984926", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Rabbit Shake", animationId = "117394346715743", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Kawaii Bounce", animationId = "127118661424463", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil}
 }
 
--- Track previously active toggles
-local previouslyActive = {}
-
-local function stopAllAnimations(exceptToggle, rememberActive)
-    if rememberActive then
-        previouslyActive = {}
-    end
-    
+-- Stop ALL other animations when one is selected
+local function stopAllAnimations(exceptToggle)
     for _, t in ipairs(toggles) do
-        if t ~= exceptToggle and t.animTrack then
-            t.animTrack:Stop()
-            t.animTrack:Destroy()
-            t.animTrack = nil
-            if t.isToggled then
-                if rememberActive then
-                    table.insert(previouslyActive, t)
-                end
-                t.isToggled = false
+        if t ~= exceptToggle then
+            t.isToggled = false
+            if t.animTrack then
+                t.animTrack:Stop()
+                t.animTrack:Destroy()
+                t.animTrack = nil
+            end
+            if t.label and t.dotGradient then
                 local targetTextColor = Color3.fromRGB(200, 200, 200)
                 TweenService:Create(t.label, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextColor3 = targetTextColor}):Play()
                 t.dotGradient.Color = offSequence
             end
         end
     end
-end
-
-local function restorePreviousAnimations()
-    for _, toggle in ipairs(previouslyActive) do
-        toggle.isToggled = true
-        local targetTextColor = Color3.fromRGB(76, 209, 55)
-        TweenService:Create(toggle.label, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextColor3 = targetTextColor}):Play()
-        toggle.dotGradient.Color = onSequence
-        local character = player.Character
-        if character then
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                local animation = Instance.new("Animation")
-                animation.AnimationId = "rbxassetid://" .. toggle.animationId
-                toggle.animTrack = humanoid:LoadAnimation(animation)
-                toggle.animTrack.Looped = toggle.looped ~= false
-                toggle.animTrack:Play()
-            end
-        end
-    end
-    previouslyActive = {}
 end
 
 local function toggleAnimation(toggle)
@@ -315,8 +124,7 @@ local function toggleAnimation(toggle)
     end
     
     if toggle.isToggled then
-        local shouldRemember = (toggle.looped == false)
-        stopAllAnimations(toggle, shouldRemember)
+        stopAllAnimations(toggle)
         
         for _, track in pairs(humanoid:GetPlayingAnimationTracks()) do
             track:Stop()
@@ -332,70 +140,69 @@ local function toggleAnimation(toggle)
             toggle.animTrack.Stopped:Connect(function()
                 if toggle.isToggled then
                     toggle.isToggled = false
-                    local targetTextColor = Color3.fromRGB(200, 200, 200)
-                    TweenService:Create(toggle.label, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextColor3 = targetTextColor}):Play()
-                    
-                    local tweenTime = 0.2
-                    local startTime = tick()
-                    local startSequence = toggle.dotGradient.Color
-                    local connection
-                    connection = RunService.RenderStepped:Connect(function()
-                        local elapsed = tick() - startTime
-                        local alpha = math.clamp(elapsed / tweenTime, 0, 1)
-                        local lerpedColor1 = startSequence.Keypoints[1].Value:Lerp(offSequence.Keypoints[1].Value, alpha)
-                        local lerpedColor2 = startSequence.Keypoints[2].Value:Lerp(offSequence.Keypoints[2].Value, alpha)
-                        toggle.dotGradient.Color = ColorSequence.new(lerpedColor1, lerpedColor2)
-                        if alpha >= 1 then
-                            connection:Disconnect()
-                        end
-                    end)
-                    
-                    task.wait(0.3)
-                    restorePreviousAnimations()
+                    if toggle.label and toggle.dotGradient then
+                        local targetTextColor = Color3.fromRGB(200, 200, 200)
+                        TweenService:Create(toggle.label, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextColor3 = targetTextColor}):Play()
+                        
+                        local tweenTime = 0.2
+                        local startTime = tick()
+                        local startSequence = toggle.dotGradient.Color
+                        local connection
+                        connection = RunService.RenderStepped:Connect(function()
+                            local elapsed = tick() - startTime
+                            local alpha = math.clamp(elapsed / tweenTime, 0, 1)
+                            local lerpedColor1 = startSequence.Keypoints[1].Value:Lerp(offSequence.Keypoints[1].Value, alpha)
+                            local lerpedColor2 = startSequence.Keypoints[2].Value:Lerp(offSequence.Keypoints[2].Value, alpha)
+                            toggle.dotGradient.Color = ColorSequence.new(lerpedColor1, lerpedColor2)
+                            if alpha >= 1 then
+                                connection:Disconnect()
+                            end
+                        end)
+                    end
                 end
             end)
         end
     end
 end
 
--- Create separate toggle frames
+-- Create toggle buttons (TextButton for reliable mobile touch)
 for i, toggle in ipairs(toggles) do
-    local toggleFrame = Instance.new("Frame")
-    toggleFrame.Name = toggle.name .. "Frame"
-
+    local toggleButton = Instance.new("TextButton")
+    toggleButton.Name = toggle.name .. "Button"
+    
     if isMobile then
-        -- Thinner & higher list on mobile
-        toggleFrame.Size = UDim2.new(0, 200, 0, 34)
-        toggleFrame.Position = UDim2.new(1, -210, 0, -10 + (i - 1) * 38)
+        toggleButton.Size = UDim2.new(0, 200, 0, 34)
+        toggleButton.Position = UDim2.new(1, -210, 0, -10 + (i - 1) * 38)
     else
-        toggleFrame.Size = UDim2.new(0, 220, 0, 40)
-        toggleFrame.Position = UDim2.new(1, -230, 0, 8 + (i - 1) * 44)
+        toggleButton.Size = UDim2.new(0, 220, 0, 40)
+        toggleButton.Position = UDim2.new(1, -230, 0, 8 + (i - 1) * 44)
     end
-
-    toggleFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    toggleFrame.BackgroundTransparency = 0.4
-    toggleFrame.BorderSizePixel = 0
-    toggleFrame.Parent = toggleContainer
-    toggleFrame.Visible = false
-    toggleFrame.BackgroundTransparency = 1
-    toggleFrame.Active = true
-    toggleFrame.ClipsDescendants = false
+    
+    toggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    toggleButton.BackgroundTransparency = 0.4
+    toggleButton.BorderSizePixel = 0
+    toggleButton.Text = ""
+    toggleButton.AutoButtonColor = false
+    toggleButton.Parent = toggleContainer
+    toggleButton.Visible = false
+    toggleButton.BackgroundTransparency = 1
+    toggleButton.Active = true
 
     local frameCorner = Instance.new("UICorner")
     frameCorner.CornerRadius = UDim.new(0, 6)
-    frameCorner.Parent = toggleFrame
+    frameCorner.Parent = toggleButton
 
     local frameGradient = Instance.new("UIGradient")
     frameGradient.Color = ColorSequence.new(Color3.fromRGB(0, 0, 0), Color3.fromRGB(200, 200, 200))
     frameGradient.Rotation = 90
-    frameGradient.Parent = toggleFrame
+    frameGradient.Parent = toggleButton
 
     local frameShadow = Instance.new("UIStroke")
     frameShadow.Color = Color3.fromRGB(0, 0, 0)
     frameShadow.Transparency = 0.6
     frameShadow.Thickness = 1
     frameShadow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    frameShadow.Parent = toggleFrame
+    frameShadow.Parent = toggleButton
 
     local toggleLabel = Instance.new("TextLabel")
     toggleLabel.Name = "ToggleLabel"
@@ -408,7 +215,7 @@ for i, toggle in ipairs(toggles) do
     toggleLabel.Font = Enum.Font.GothamSemibold
     toggleLabel.TextXAlignment = Enum.TextXAlignment.Left
     toggleLabel.TextYAlignment = Enum.TextYAlignment.Center
-    toggleLabel.Parent = toggleFrame
+    toggleLabel.Parent = toggleButton
     toggle.label = toggleLabel
 
     local toggleDot = Instance.new("Frame")
@@ -417,7 +224,7 @@ for i, toggle in ipairs(toggles) do
     toggleDot.Position = UDim2.new(1, -18, 0.5, -5)
     toggleDot.BackgroundColor3 = Color3.new(1, 1, 1)
     toggleDot.BorderSizePixel = 0
-    toggleDot.Parent = toggleFrame
+    toggleDot.Parent = toggleButton
     toggle.dot = toggleDot
 
     local toggleDotCorner = Instance.new("UICorner")
@@ -430,8 +237,8 @@ for i, toggle in ipairs(toggles) do
     toggleDotGradient.Parent = toggleDot
     toggle.dotGradient = toggleDotGradient
 
-    local frameStroke = frameShadow
-    frameStroke.Transparency = 1
+    -- Start transparent
+    frameShadow.Transparency = 1
     toggleLabel.TextTransparency = 1
     toggleDot.BackgroundTransparency = 1
 
@@ -460,37 +267,35 @@ for i, toggle in ipairs(toggles) do
         toggleAnimation(toggle)
     end
 
-    toggleFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            handleToggle()
-        end
-    end)
+    -- RELIABLE MOBILE TOUCH - Use Activated event
+    toggleButton.Activated:Connect(handleToggle)
 
-    toggleFrame.MouseEnter:Connect(function()
+    -- Hover effects (PC only)
+    toggleButton.MouseEnter:Connect(function()
         local hoverTextColor = toggle.isToggled and Color3.fromRGB(120, 255, 100) or Color3.fromRGB(230, 230, 230)
         TweenService:Create(toggleLabel, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {TextColor3 = hoverTextColor}):Play()
-        TweenService:Create(toggleFrame, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.2}):Play()
+        TweenService:Create(toggleButton, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.2}):Play()
     end)
 
-    toggleFrame.MouseLeave:Connect(function()
+    toggleButton.MouseLeave:Connect(function()
         local targetTextColor = toggle.isToggled and Color3.fromRGB(76, 209, 55) or Color3.fromRGB(200, 200, 200)
         TweenService:Create(toggleLabel, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {TextColor3 = targetTextColor}):Play()
-        TweenService:Create(toggleFrame, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.4}):Play()
+        TweenService:Create(toggleButton, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.4}):Play()
     end)
 end
 
--- Main toggle functionality
+-- Menu toggle function
 local function toggleMenu()
     menuVisible = not menuVisible
     
     for _, toggle in ipairs(toggles) do
-        local frame = toggleContainer:FindFirstChild(toggle.name .. "Frame")
-        if frame then
-            local frameStroke = frame:FindFirstChildOfClass("UIStroke")
+        local button = toggleContainer:FindFirstChild(toggle.name .. "Button")
+        if button then
+            local frameStroke = button:FindFirstChildOfClass("UIStroke")
             
             if menuVisible then
-                frame.Visible = true
-                TweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+                button.Visible = true
+                TweenService:Create(button, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
                     BackgroundTransparency = 0.4
                 }):Play()
                 
@@ -500,7 +305,7 @@ local function toggleMenu()
                     }):Play()
                 end
                 
-                for _, child in ipairs(frame:GetChildren()) do
+                for _, child in ipairs(button:GetChildren()) do
                     if child:IsA("TextLabel") then
                         TweenService:Create(child, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
                     elseif child:IsA("Frame") and child.Name == "ToggleDot" then
@@ -508,7 +313,7 @@ local function toggleMenu()
                     end
                 end
             else
-                TweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+                TweenService:Create(button, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
                     BackgroundTransparency = 1
                 }):Play()
                 
@@ -518,7 +323,7 @@ local function toggleMenu()
                     }):Play()
                 end
                 
-                for _, child in ipairs(frame:GetChildren()) do
+                for _, child in ipairs(button:GetChildren()) do
                     if child:IsA("TextLabel") then
                         TweenService:Create(child, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {TextTransparency = 1}):Play()
                     elseif child:IsA("Frame") and child.Name == "ToggleDot" then
@@ -526,21 +331,21 @@ local function toggleMenu()
                     end
                 end
                 task.delay(0.4, function()
-                    frame.Visible = false
+                    button.Visible = false
                 end)
             end
         end
     end
 end
 
--- Main toggle button unified input
+-- Main toggle button input
 mainToggleButton.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         toggleMenu()
     end
 end)
 
--- Hover effect for main toggle (PC visual)
+-- Main button hover
 mainToggleButton.MouseEnter:Connect(function()
     TweenService:Create(mainToggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.1}):Play()
     TweenService:Create(mainToggleStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Transparency = 0.2}):Play()
