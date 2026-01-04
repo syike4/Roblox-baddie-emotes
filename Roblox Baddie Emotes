@@ -54,13 +54,6 @@ mainToggleStroke.Parent = mainToggleButton
 -- Track menu visibility
 local menuVisible = false
 
--- Container for all toggle frames
-local toggleContainer = Instance.new("Frame")
-toggleContainer.Name = "ToggleContainer"
-toggleContainer.Size = UDim2.new(1, 0, 1, 0)
-toggleContainer.BackgroundTransparency = 1
-toggleContainer.Parent = screenGui
-
 -- Common colors and sequences
 local black = Color3.new(0, 0, 0)
 local offColor = Color3.fromRGB(255, 69, 58)
@@ -91,6 +84,49 @@ local toggles = {
     {name = "Rabbit Shake", animationId = "117394346715743", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
     {name = "Kawaii Bounce", animationId = "127118661424463", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil}
 }
+
+-- MOBILE ONLY: Black/Transparent Scrolling Container
+local toggleContainer
+if isMobile then
+    toggleContainer = Instance.new("ScrollingFrame")
+    toggleContainer.Name = "ToggleContainer"
+    toggleContainer.Size = UDim2.new(0, 220, 0, 300)
+    toggleContainer.Position = UDim2.new(1, -240, 0, 50)
+    toggleContainer.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    toggleContainer.BackgroundTransparency = 0.4
+    toggleContainer.BorderSizePixel = 0
+    toggleContainer.ScrollBarThickness = 0  -- Transparent scroller
+    toggleContainer.ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0)
+    toggleContainer.ScrollBarImageTransparency = 1
+    toggleContainer.CanvasSize = UDim2.new(0, 0, 0, #toggles * 38)
+    toggleContainer.Parent = screenGui
+    
+    local containerCorner = Instance.new("UICorner")
+    containerCorner.CornerRadius = UDim.new(0, 12)
+    containerCorner.Parent = toggleContainer
+    
+    local containerGradient = Instance.new("UIGradient")
+    containerGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 5, 5))
+    }
+    containerGradient.Rotation = 90
+    containerGradient.Parent = toggleContainer
+    
+    local containerStroke = Instance.new("UIStroke")
+    containerStroke.Color = Color3.fromRGB(40, 40, 40)
+    containerStroke.Transparency = 0.7
+    containerStroke.Thickness = 1.5
+    containerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    containerStroke.Parent = toggleContainer
+else
+    -- PC: Original floating toggles
+    toggleContainer = Instance.new("Frame")
+    toggleContainer.Name = "ToggleContainer"
+    toggleContainer.Size = UDim2.new(1, 0, 1, 0)
+    toggleContainer.BackgroundTransparency = 1
+    toggleContainer.Parent = screenGui
+end
 
 -- Stop ALL other animations when one is selected
 local function stopAllAnimations(exceptToggle)
@@ -165,14 +201,14 @@ local function toggleAnimation(toggle)
     end
 end
 
--- Create toggle buttons (TextButton for reliable mobile touch)
+-- Create toggle buttons
 for i, toggle in ipairs(toggles) do
     local toggleButton = Instance.new("TextButton")
     toggleButton.Name = toggle.name .. "Button"
     
     if isMobile then
-        toggleButton.Size = UDim2.new(0, 200, 0, 34)
-        toggleButton.Position = UDim2.new(1, -210, 0, -10 + (i - 1) * 38)
+        toggleButton.Size = UDim2.new(1, -16, 0, 34)
+        toggleButton.Position = UDim2.new(0, 8, 0, 4 + (i - 1) * 38)
     else
         toggleButton.Size = UDim2.new(0, 220, 0, 40)
         toggleButton.Position = UDim2.new(1, -230, 0, 8 + (i - 1) * 44)
@@ -184,9 +220,10 @@ for i, toggle in ipairs(toggles) do
     toggleButton.Text = ""
     toggleButton.AutoButtonColor = false
     toggleButton.Parent = toggleContainer
-    toggleButton.Visible = false
-    toggleButton.BackgroundTransparency = 1
-    toggleButton.Active = true
+    if not isMobile then
+        toggleButton.Visible = false
+        toggleButton.BackgroundTransparency = 1
+    end
 
     local frameCorner = Instance.new("UICorner")
     frameCorner.CornerRadius = UDim.new(0, 6)
@@ -237,10 +274,12 @@ for i, toggle in ipairs(toggles) do
     toggleDotGradient.Parent = toggleDot
     toggle.dotGradient = toggleDotGradient
 
-    -- Start transparent
-    frameShadow.Transparency = 1
-    toggleLabel.TextTransparency = 1
-    toggleDot.BackgroundTransparency = 1
+    -- Start transparent for PC fade-in
+    if not isMobile then
+        frameShadow.Transparency = 1
+        toggleLabel.TextTransparency = 1
+        toggleDot.BackgroundTransparency = 1
+    end
 
     local function handleToggle()
         toggle.isToggled = not toggle.isToggled
@@ -267,25 +306,27 @@ for i, toggle in ipairs(toggles) do
         toggleAnimation(toggle)
     end
 
-    -- RELIABLE MOBILE TOUCH - Use Activated event
     toggleButton.Activated:Connect(handleToggle)
 
-    -- Hover effects (PC only)
-    toggleButton.MouseEnter:Connect(function()
-        local hoverTextColor = toggle.isToggled and Color3.fromRGB(120, 255, 100) or Color3.fromRGB(230, 230, 230)
-        TweenService:Create(toggleLabel, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {TextColor3 = hoverTextColor}):Play()
-        TweenService:Create(toggleButton, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.2}):Play()
-    end)
+    if not isMobile then
+        toggleButton.MouseEnter:Connect(function()
+            local hoverTextColor = toggle.isToggled and Color3.fromRGB(120, 255, 100) or Color3.fromRGB(230, 230, 230)
+            TweenService:Create(toggleLabel, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {TextColor3 = hoverTextColor}):Play()
+            TweenService:Create(toggleButton, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.2}):Play()
+        end)
 
-    toggleButton.MouseLeave:Connect(function()
-        local targetTextColor = toggle.isToggled and Color3.fromRGB(76, 209, 55) or Color3.fromRGB(200, 200, 200)
-        TweenService:Create(toggleLabel, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {TextColor3 = targetTextColor}):Play()
-        TweenService:Create(toggleButton, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.4}):Play()
-    end)
+        toggleButton.MouseLeave:Connect(function()
+            local targetTextColor = toggle.isToggled and Color3.fromRGB(76, 209, 55) or Color3.fromRGB(200, 200, 200)
+            TweenService:Create(toggleLabel, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {TextColor3 = targetTextColor}):Play()
+            TweenService:Create(toggleButton, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {BackgroundTransparency = 0.4}):Play()
+        end)
+    end
 end
 
--- Menu toggle function
+-- Menu toggle function (PC only)
 local function toggleMenu()
+    if isMobile then return end -- Mobile uses always-visible container
+    
     menuVisible = not menuVisible
     
     for _, toggle in ipairs(toggles) do
