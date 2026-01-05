@@ -142,6 +142,15 @@ local toggles = {
     {name = "Kawaii Bounce", animationId = "127118661424463", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil}
 }
 
+-- Idle animation (separate, not in the toggle list)
+local idleAnimation = {
+    name = "Idle Animation",
+    animationId = "86386024192162",
+    isToggled = true,
+    animTrack = nil,
+    isIdle = true
+}
+
 -- Stop ALL other animations (and sound if needed)
 local function stopAllAnimations(exceptToggle)
     for _, t in ipairs(toggles) do
@@ -410,12 +419,83 @@ mainToggleButton.MouseLeave:Connect(function()
     TweenService:Create(mainToggleStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Transparency = 0.5}):Play()
 end)
 
+-- Monitor player movement for idle animation
+RunService.RenderStepped:Connect(function()
+    local character = player.Character
+    if not character then return end
+    
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not humanoid or not idleAnimation.animTrack then return end
+    
+    -- Check if any toggle animations are playing
+    local hasActiveToggle = false
+    for _, toggle in ipairs(toggles) do
+        if toggle.isToggled and toggle.animTrack and toggle.animTrack.IsPlaying then
+            hasActiveToggle = true
+            break
+        end
+    end
+    
+    -- Check if player is jumping or in the air
+    local isJumping = humanoid:GetState() == Enum.HumanoidStateType.Jumping or 
+                      humanoid:GetState() == Enum.HumanoidStateType.Freefall or
+                      humanoid:GetState() == Enum.HumanoidStateType.Flying
+    
+    -- Only play idle animation if no other toggle animations are active, not moving, and not jumping
+    if not hasActiveToggle then
+        if humanoid.MoveDirection.Magnitude == 0 and not isJumping then
+            -- Player stopped moving and on ground
+            if not idleAnimation.animTrack.IsPlaying then
+                idleAnimation.animTrack:Play()
+            end
+        else
+            -- Player is moving or jumping
+            if idleAnimation.animTrack.IsPlaying then
+                idleAnimation.animTrack:Stop()
+            end
+        end
+    else
+        -- Another toggle animation is active, stop idle
+        if idleAnimation.animTrack.IsPlaying then
+            idleAnimation.animTrack:Stop()
+        end
+    end
+end)
+
 player.CharacterAdded:Connect(function(character)
     local humanoid = character:WaitForChild("Humanoid")
     humanoid:WaitForChild("Animator")
+    
+    -- Setup idle animation
+    local idleAnim = Instance.new("Animation")
+    idleAnim.AnimationId = "rbxassetid://" .. idleAnimation.animationId
+    idleAnimation.animTrack = humanoid:LoadAnimation(idleAnim)
+    idleAnimation.animTrack.Priority = Enum.AnimationPriority.Idle
+    idleAnimation.animTrack.Looped = true
+    
+    -- Reactivate any toggled animations
     for _, toggle in ipairs(toggles) do
         if toggle.isToggled then
             toggleAnimation(toggle)
         end
     end
 end)
+
+-- Initial setup if character already exists
+if player.Character then
+    local humanoid = player.Character:WaitForChild("Humanoid")
+    humanoid:WaitForChild("Animator")
+    
+    -- Load idle animation on start
+    local idleAnim = Instance.new("Animation")
+    idleAnim.AnimationId = "rbxassetid://" .. idleAnimation.animationId
+    idleAnimation.animTrack = humanoid:LoadAnimation(idleAnim)
+    idleAnimation.animTrack.Priority = Enum.AnimationPriority.Idle
+    idleAnimation.animTrack.Looped = true
+    
+    for _, toggle in ipairs(toggles) do
+        if toggle.isToggled then
+            toggleAnimation(toggle)
+        end
+    end
+end
