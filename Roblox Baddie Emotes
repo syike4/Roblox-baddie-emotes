@@ -110,6 +110,14 @@ local onColor = Color3.fromRGB(76, 209, 55)
 local offSequence = ColorSequence.new(black, offColor)
 local onSequence = ColorSequence.new(black, onColor)
 
+-- Create sound for Cute Jiggly Needy Shake
+local needyShakeSound = Instance.new("Sound")
+needyShakeSound.SoundId = "rbxassetid://13332221546"
+needyShakeSound.Volume = 1
+needyShakeSound.Looped = true
+needyShakeSound.PlaybackSpeed = 0.6  -- Match animation speed
+needyShakeSound.Parent = game:GetService("SoundService")
+
 -- Toggles data
 local toggles = {
     {name = "Baddies Split", animationId = "85195857579576", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
@@ -128,13 +136,13 @@ local toggles = {
     {name = "Split While Laying", animationId = "100179668392253", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
     {name = "Cute Sitting Down", animationId = "74979648047173", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
     {name = "Hip Sway", animationId = "121983227909457", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
-    {name = "Cute Jiggly Needy Shake", animationId = "87387281711244", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
+    {name = "Cute Jiggly Needy Shake", animationId = "87387281711244", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil, hasSound = true},  -- FLAG FOR SOUND
     {name = "spicy needy diva bouncy shake", animationId = "139957058984926", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
     {name = "Rabbit Shake", animationId = "117394346715743", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil},
     {name = "Kawaii Bounce", animationId = "127118661424463", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil}
 }
 
--- Stop ALL other animations
+-- Stop ALL other animations (and sound if needed)
 local function stopAllAnimations(exceptToggle)
     for _, t in ipairs(toggles) do
         if t ~= exceptToggle then
@@ -143,6 +151,10 @@ local function stopAllAnimations(exceptToggle)
                 t.animTrack:Stop()
                 t.animTrack:Destroy()
                 t.animTrack = nil
+            end
+            -- Stop sound if it was playing
+            if t.hasSound and needyShakeSound.Playing then
+                needyShakeSound:Stop()
             end
             if t.label and t.dotGradient then
                 local targetTextColor = Color3.fromRGB(200, 200, 200)
@@ -177,6 +189,11 @@ local function toggleAnimation(toggle)
         toggle.animTrack.Looped = toggle.looped ~= false
         toggle.animTrack:Play()
         
+        -- Play sound if this animation has sound
+        if toggle.hasSound then
+            needyShakeSound:Play()
+        end
+        
         if toggle.looped == false then
             toggle.animTrack.Stopped:Connect(function()
                 if toggle.isToggled then
@@ -202,6 +219,11 @@ local function toggleAnimation(toggle)
                     end
                 end
             end)
+        end
+    else
+        -- Animation turned off, stop sound if it's playing
+        if toggle.hasSound and needyShakeSound.Playing then
+            needyShakeSound:Stop()
         end
     end
 end
