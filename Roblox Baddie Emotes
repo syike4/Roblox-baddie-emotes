@@ -144,6 +144,19 @@ local toggles = {
     {name = "Kawaii Bounce", animationId = "127118661424463", isToggled = false, animTrack = nil, label = nil, dot = nil, dotGradient = nil}
 }
 
+-- Animation states
+local walkingAnimation = {
+    animationId = "136382802509224",
+    animTrack = nil,
+    isPlaying = false
+}
+
+local longIdleAnimation = {
+    animationId = "130995344283026",
+    animTrack = nil,
+    isPlaying = false
+}
+
 -- Idle animation (separate, not in the toggle list)
 local idleAnimation = {
     name = "Idle Animation",
@@ -152,6 +165,12 @@ local idleAnimation = {
     animTrack = nil,
     isIdle = true
 }
+
+-- Movement tracking variables
+local lastMovementTime = tick()
+local longIdleTimer = 20 -- seconds
+local isLongIdleActive = false
+local isWalking = false
 
 -- Helper function for smooth tweens
 local function smoothTween(obj, time, props)
@@ -179,6 +198,50 @@ local function stopAllAnimations(exceptToggle)
     end
 end
 
+-- Function to play walking animation
+local function playWalkingAnimation()
+    if walkingAnimation.animTrack and not walkingAnimation.isPlaying then
+        walkingAnimation.animTrack:Play(0.2)
+        walkingAnimation.isPlaying = true
+    end
+end
+
+-- Function to stop walking animation
+local function stopWalkingAnimation()
+    if walkingAnimation.animTrack and walkingAnimation.isPlaying then
+        walkingAnimation.animTrack:Stop(0.2)
+        walkingAnimation.isPlaying = false
+    end
+end
+
+-- Function to play long idle animation
+local function playLongIdleAnimation()
+    if longIdleAnimation.animTrack and not longIdleAnimation.isPlaying then
+        longIdleAnimation.animTrack:Play(0.2)
+        longIdleAnimation.isPlaying = true
+        isLongIdleActive = true
+    end
+end
+
+-- Function to stop long idle animation
+local function stopLongIdleAnimation()
+    if longIdleAnimation.animTrack and longIdleAnimation.isPlaying then
+        longIdleAnimation.animTrack:Stop(0.2)
+        longIdleAnimation.isPlaying = false
+        isLongIdleActive = false
+    end
+end
+
+-- Check if any toggle animation is active
+local function anyToggleActive()
+    for _, toggle in ipairs(toggles) do
+        if toggle.isToggled and toggle.animTrack and toggle.animTrack.IsPlaying then
+            return true
+        end
+    end
+    return false
+end
+
 local function toggleAnimation(toggle)
     local character = player.Character
     if not character then return end
@@ -193,6 +256,9 @@ local function toggleAnimation(toggle)
     
     if toggle.isToggled then
         stopAllAnimations(toggle)
+        stopWalkingAnimation()
+        stopLongIdleAnimation()
+        
         for _, track in pairs(humanoid:GetPlayingAnimationTracks()) do
             track:Stop(0.2)
         end
@@ -213,7 +279,7 @@ local function toggleAnimation(toggle)
                     toggle.isToggled = false
                     if toggle.label and toggle.dotGradient then
                         smoothTween(toggle.label, 0.3, {TextColor3 = Color3.fromRGB(200, 200, 200)})
-                        t.dotGradient.Color = offSequence
+                        toggle.dotGradient.Color = offSequence
                     end
                 end
             end)
@@ -403,38 +469,71 @@ mainToggleButton.MouseLeave:Connect(function()
     smoothTween(mainToggleStroke, 0.25, {Transparency = 0.6})
 end)
 
--- Monitor player movement for idle animation (SMOOTHED)
+-- Monitor player movement for walking and idle animations
 RunService.RenderStepped:Connect(function()
     local character = player.Character
     if not character then return end
     
     local humanoid = character:FindFirstChildOfClass("Humanoid")
-    if not humanoid or not idleAnimation.animTrack then return end
+    if not humanoid then return end
     
-    local hasActiveToggle = false
-    for _, toggle in ipairs(toggles) do
-        if toggle.isToggled and toggle.animTrack and toggle.animTrack.IsPlaying then
-            hasActiveToggle = true
-            break
-        end
-    end
+    local hasActiveToggle = anyToggleActive()
     
+    -- Check if player is moving
+    local isMoving = humanoid.MoveDirection.Magnitude > 0
     local isJumping = humanoid:GetState() == Enum.HumanoidStateType.Jumping or 
                       humanoid:GetState() == Enum.HumanoidStateType.Freefall or
                       humanoid:GetState() == Enum.HumanoidStateType.Flying
     
-    if not hasActiveToggle then
-        if humanoid.MoveDirection.Magnitude == 0 and not isJumping then
-            if not idleAnimation.animTrack.IsPlaying then
-                idleAnimation.animTrack:Play(0.2)
+    -- Update movement time for long idle check
+    if isMoving then
+        lastMovementTime = tick()
+        stopLongIdleAnimation()
+        isLongIdleActive = false
+    end
+    
+    -- Check for long idle (20 seconds without movement)
+    local timeSinceLastMovement = tick() - lastMovementTime
+    if timeSinceLastMovement >= longIdleTimer and not isLongIdleActive and not hasActiveToggle and not isMoving and not isJumping then
+        playLongIdleAnimation()
+        stopWalkingAnimation()
+        if idleAnimation.animTrack and idleAnimation.animTrack.IsPlaying then
+            idleAnimation.animTrack:Stop(0.2)
+        end
+    end
+    
+    -- Handle walking animation
+    if not hasActiveToggle and not isLongIdleActive then
+        if isMoving and not isJumping then
+            if not isWalking then
+                playWalkingAnimation()
+                isWalking = true
+                -- Stop regular idle animation when walking
+                if idleAnimation.animTrack and idleAnimation.animTrack.IsPlaying then
+                    idleAnimation.animTrack:Stop(0.2)
+                end
             end
         else
-            if idleAnimation.animTrack.IsPlaying then
-                idleAnimation.animTrack:Stop(0.2)
+            if isWalking then
+                stopWalkingAnimation()
+                isWalking = false
             end
         end
     else
-        if idleAnimation.animTrack.IsPlaying then
+        -- Stop walking animation if toggle is active or long idle is active
+        if isWalking then
+            stopWalkingAnimation()
+            isWalking = false
+        end
+    end
+    
+    -- Handle regular idle animation (only when no toggle active, not moving, not jumping, and not in long idle)
+    if not hasActiveToggle and not isMoving and not isJumping and not isLongIdleActive then
+        if idleAnimation.animTrack and not idleAnimation.animTrack.IsPlaying then
+            idleAnimation.animTrack:Play(0.2)
+        end
+    else
+        if idleAnimation.animTrack and idleAnimation.animTrack.IsPlaying then
             idleAnimation.animTrack:Stop(0.2)
         end
     end
@@ -444,12 +543,31 @@ player.CharacterAdded:Connect(function(character)
     local humanoid = character:WaitForChild("Humanoid")
     humanoid:WaitForChild("Animator")
     
+    -- Reset movement tracking
+    lastMovementTime = tick()
+    isWalking = false
+    isLongIdleActive = false
+    
     -- Setup idle animation
     local idleAnim = Instance.new("Animation")
     idleAnim.AnimationId = "rbxassetid://" .. idleAnimation.animationId
     idleAnimation.animTrack = humanoid:LoadAnimation(idleAnim)
     idleAnimation.animTrack.Priority = Enum.AnimationPriority.Idle
     idleAnimation.animTrack.Looped = true
+    
+    -- Setup walking animation
+    local walkingAnim = Instance.new("Animation")
+    walkingAnim.AnimationId = "rbxassetid://" .. walkingAnimation.animationId
+    walkingAnimation.animTrack = humanoid:LoadAnimation(walkingAnim)
+    walkingAnimation.animTrack.Priority = Enum.AnimationPriority.Action
+    walkingAnimation.animTrack.Looped = true
+    
+    -- Setup long idle animation
+    local longIdleAnim = Instance.new("Animation")
+    longIdleAnim.AnimationId = "rbxassetid://" .. longIdleAnimation.animationId
+    longIdleAnimation.animTrack = humanoid:LoadAnimation(longIdleAnim)
+    longIdleAnimation.animTrack.Priority = Enum.AnimationPriority.Idle
+    longIdleAnimation.animTrack.Looped = true
     
     -- Reactivate any toggled animations
     for _, toggle in ipairs(toggles) do
@@ -464,11 +582,31 @@ if player.Character then
     local humanoid = player.Character:WaitForChild("Humanoid")
     humanoid:WaitForChild("Animator")
     
+    -- Reset movement tracking
+    lastMovementTime = tick()
+    isWalking = false
+    isLongIdleActive = false
+    
+    -- Setup idle animation
     local idleAnim = Instance.new("Animation")
     idleAnim.AnimationId = "rbxassetid://" .. idleAnimation.animationId
     idleAnimation.animTrack = humanoid:LoadAnimation(idleAnim)
     idleAnimation.animTrack.Priority = Enum.AnimationPriority.Idle
     idleAnimation.animTrack.Looped = true
+    
+    -- Setup walking animation
+    local walkingAnim = Instance.new("Animation")
+    walkingAnim.AnimationId = "rbxassetid://" .. walkingAnimation.animationId
+    walkingAnimation.animTrack = humanoid:LoadAnimation(walkingAnim)
+    walkingAnimation.animTrack.Priority = Enum.AnimationPriority.Action
+    walkingAnimation.animTrack.Looped = true
+    
+    -- Setup long idle animation
+    local longIdleAnim = Instance.new("Animation")
+    longIdleAnim.AnimationId = "rbxassetid://" .. longIdleAnimation.animationId
+    longIdleAnimation.animTrack = humanoid:LoadAnimation(longIdleAnim)
+    longIdleAnimation.animTrack.Priority = Enum.AnimationPriority.Idle
+    longIdleAnimation.animTrack.Looped = true
     
     for _, toggle in ipairs(toggles) do
         if toggle.isToggled then
